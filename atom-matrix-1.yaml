@@ -1,0 +1,54 @@
+substitutions:
+  device: atom-matrix-1
+  name: "Atom Matrix 1"
+  update_interval: 60s
+
+  reboot_timeout: 15min
+  ap_timeout: 0s # disable automatic AP mode
+
+  log_level: INFO
+
+esphome:
+  name: "${device}"
+  friendly_name: "${name}"
+
+esp32:
+  board: m5stack-atom
+  framework:
+    type: esp-idf
+    version: recommended
+
+packages:
+  base: !include common/base.yaml
+  wifi: !include common/wifi.yaml
+  web_server: !include common/web_server.yaml
+  m5stack_status: !include
+    file: common/m5stack/status.yaml
+    vars:
+      m5_rgb_max_brt: 50%
+      m5_rgb_count: 25
+  mpu6886_accel: !include common/m5stack/mpu6886-accel.yaml
+  # device-specific
+  modbus_bridge: !include devices/modbus-bridge.yaml
+
+# enable debug logging
+logger:
+  level: ${log_level}
+
+# allow this device to go offline without going unavailable in Home Assistant
+deep_sleep:
+
+# UART for Modbus RTU
+uart:
+  id: modbus_uart
+  tx_pin: GPIO26
+  rx_pin: GPIO32
+  baud_rate: 9600
+  stop_bits: 1
+  rx_buffer_size: 512
+
+# i2c for MPU6886
+i2c:
+  id: i2c1
+  sda: GPIO25
+  scl: GPIO21

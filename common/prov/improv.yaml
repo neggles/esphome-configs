@@ -1,0 +1,45 @@
+---
+defaults:
+  improv_auth_sensor: none
+  improv_auth_duration: 5min
+  improv_status_output: null
+  improv_wifi_timeout: 5min
+  improv_identify_duration: 15s
+
+esp32_improv:
+  authorizer: ${improv_auth_sensor}
+  authorized_duration: ${improv_auth_duration}
+  status_indicator: ${improv_status_output}
+  identify_duration: ${improv_identify_duration}
+  wifi_timeout: ${improv_wifi_timeout}
+  on_start:
+    then:
+      - logger.log: "Improv waiting for authorization"
+  on_provisioning:
+    then:
+      - logger.log: "Improv provisioning started"
+  on_provisioned:
+    then:
+      - logger.log: "Improv provisioning complete"
+  on_stop:
+    then:
+      - logger.log: "Improv processing stopped"
+
+  on_state:
+    then:
+      - lambda: |-
+          if (error == improv::ERROR_NONE) {
+            ESP_LOGI("improv", "state: %d", state);
+          } elif (error == improv::ERROR_INVALID_RPC) {
+            ESP_LOGE("improv", "state: %d, error: invalid RPC", state);
+          } else if (error == improv::ERROR_UNKNOWN_RPC) {
+            ESP_LOGE("improv", "state: %d, error: unknown RPC", state);
+          } else if (error == improv::ERROR_UNABLE_TO_CONNECT) {
+            ESP_LOGE("improv", "state: %d, error: unable to connect to WiFi", state);
+          } else if (error == improv::ERROR_NOT_AUTHORIZED) {
+            ESP_LOGE("improv", "state: %d, error: not authorized", state);
+          } else if (error == improv::ERROR_UNKNOWN) {
+            ESP_LOGE("improv", "state: %d, error: unknown", state);
+          } else {
+            ESP_LOGE("improv", "state: %d, error: other (should never happen)", state);
+          }

@@ -1,0 +1,267 @@
+defaults:
+  m5_button_gpio: GPIO19 # atom lite button
+  m5_rgb_gpio: GPIO27 # atom lite RGB LED
+  m5_rgb_count: 1
+  m5_rgb_max_brt: 75%
+  status_brt_hi: 100%
+  status_brt_mid: 50%
+  status_brt_lo: 25%
+
+external_components:
+  - source: github://pr#5814
+    components: [status_indicator, wifi]
+    refresh: 1d
+
+# Status LED
+light:
+  - platform: esp32_rmt_led_strip
+    id: m5_rgb_led
+    name: None
+    icon: "mdi:led-outline"
+    entity_category: config
+    disabled_by_default: true
+    rgb_order: GRB
+    pin: ${m5_rgb_gpio}
+    num_leds: ${m5_rgb_count}
+    chipset: SK6812
+    color_correct:
+      - ${m5_rgb_max_brt}
+      - ${m5_rgb_max_brt}
+      - ${m5_rgb_max_brt}
+    effects:
+      - pulse:
+          name: slow_pulse
+          transition_length: 1s
+          update_interval: 1s
+          min_brightness: ${status_brt_lo}
+          max_brightness: ${status_brt_hi}
+      - pulse:
+          name: fast_pulse
+          transition_length: 200ms
+          update_interval: 200ms
+          min_brightness: ${status_brt_lo}
+          max_brightness: ${status_brt_hi}
+      - addressable_rainbow:
+          name: rainbow
+          speed: 10
+          width: 1
+
+binary_sensor:
+  - platform: gpio
+    id: button
+    name: Device Button
+    pin:
+      number: ${m5_button_gpio}
+      inverted: true
+    disabled_by_default: true
+    on_press:
+      - status.push:
+          trigger_id: status_purple
+    on_release:
+      - status.pop:
+          trigger_id: status_purple
+    on_multi_click:
+      - timing:
+          # double-click and hold
+          - ON for at most 1s
+          - OFF for at most 1s
+          - ON for at least 5s
+          - OFF for at least 0.2s
+        then:
+          - status.push:
+              trigger_id: status_red_pulse
+          - logger.log:
+              level: WARN
+              tag: button
+              format: "Enabling WiFi AP mode"
+          - delay: 1s
+          - lambda: |-
+              wifi::global_wifi_component->set_ap_timeout(1);
+              wifi::global_wifi_component->disable();
+              wifi::global_wifi_component->clear_sta();
+              wifi::global_wifi_component->enable();
+          - delay: 1s
+          - status.pop:
+              trigger_id: status_red_pulse
+
+      - timing:
+          - ON for at least 10s
+          - OFF for at least 0.2s
+        then:
+          - status.push:
+              trigger_id: status_red_flash
+          - logger.log:
+              level: WARN
+              tag: button
+              format: "Factory Reset initiated by button"
+          - delay: 1s
+          - switch.turn_on: factory_reset_switch
+
+.colors:
+  red: &rgb_red # #FF0000
+    red: 100%
+    green: 0%
+    blue: 0%
+  green: &rgb_green # #00FF00
+    red: 0%
+    green: 100%
+    blue: 0%
+  blue: &rgb_blue # #0000FF
+    red: 0%
+    green: 0%
+    blue: 100%
+  orange: &rgb_orange # #FF8000
+    red: 100%
+    green: 50%
+    blue: 0%
+  yellow: &rgb_yellow # #FFFF00
+    red: 100%
+    green: 100%
+    blue: 0%
+  cyan: &rgb_cyan # #00FFFF
+    red: 0%
+    green: 100%
+    blue: 100%
+  azure: &rgb_azure # #0080FF
+    red: 0%
+    green: 50%
+    blue: 100%
+  violet: &rgb_violet # #8000FF
+    red: 50%
+    green: 0%
+    blue: 100%
+  magenta: &rgb_magenta # #FF00FF
+    red: 100%
+    green: 0%
+    blue: 100%
+  rose: &rgb_rose # #FF007F
+    red: 100%
+    green: 0%
+    blue: 50%
+
+status_indicator:
+  # half brightness solid green when everything is ok
+  on_turn_off:
+    then:
+      - light.turn_on:
+          id: m5_rgb_led
+          <<: *rgb_green
+          brightness: ${status_brt_mid}
+          effect: none
+
+  # slow red pulse on errors
+  on_app_error:
+    then:
+      - light.turn_on:
+          id: m5_rgb_led
+          <<: *rgb_red
+          brightness: ${status_brt_hi}
+          effect: slow_pulse
+
+  # slow orange pulse on warnings
+  on_app_warning:
+    then:
+      - light.turn_on:
+          id: m5_rgb_led
+          <<: *rgb_orange
+          brightness: ${status_brt_hi}
+          effect: slow_pulse
+
+  # slow pale yellow pulse when AP mode is active
+  on_wifi_ap_enabled:
+    then:
+      - light.turn_on:
+          id: m5_rgb_led
+          <<: *rgb_yellow
+          brightness: ${status_brt_hi}
+          effect: slow_pulse
+
+  # fast magenta pulse when no network
+  on_network_disconnected:
+    then:
+      - light.turn_on:
+          id: m5_rgb_led
+          <<: *rgb_magenta
+          brightness: ${status_brt_hi}
+          effect: fast_pulse
+
+  # custom status triggers to be used by other components
+  on_custom_status:
+    - trigger_id: status_red
+      then:
+        - light.turn_on: &status_red
+            id: m5_rgb_led
+            <<: *rgb_red
+            brightness: ${status_brt_hi}
+            effect: None
+    - trigger_id: status_red_pulse
+      then:
+        - light.turn_on:
+            <<: *status_red
+            effect: slow_pulse
+    - trigger_id: status_red_flash
+      then:
+        - light.turn_on:
+            <<: *status_red
+            effect: fast_pulse
+
+    - trigger_id: status_orange
+      then:
+        - light.turn_on: &status_orange
+            id: m5_rgb_led
+            <<: *rgb_orange
+            brightness: ${status_brt_hi}
+            effect: None
+    - trigger_id: status_orange_pulse
+      then:
+        - light.turn_on:
+            id: m5_rgb_led
+            <<: *status_orange
+            effect: slow_pulse
+    - trigger_id: status_orange_flash
+      then:
+        - light.turn_on:
+            id: m5_rgb_led
+            <<: *status_orange
+            effect: fast_pulse
+
+    - trigger_id: status_green
+      then:
+        - light.turn_on: &status_green
+            id: m5_rgb_led
+            <<: *rgb_green
+            brightness: ${status_brt_hi}
+            effect: None
+
+    - trigger_id: status_blue
+      then:
+        - light.turn_on:
+            id: m5_rgb_led
+            <<: *rgb_blue
+            brightness: ${status_brt_hi}
+            effect: None
+
+    - trigger_id: status_cyan
+      then:
+        - light.turn_on: &status_cyan
+            id: m5_rgb_led
+            <<: *rgb_cyan
+            brightness: ${status_brt_hi}
+            effect: None
+
+    - trigger_id: status_yellow
+      then:
+        - light.turn_on:
+            id: m5_rgb_led
+            <<: *rgb_yellow
+            brightness: ${status_brt_hi}
+            effect: None
+
+
+    - trigger_id: status_purple
+      then:
+        - light.turn_on:
+            id: m5_rgb_led
+            <<: *rgb_violet
+            brightness: ${status_brt_hi}
+            effect: None

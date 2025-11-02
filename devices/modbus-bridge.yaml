@@ -1,0 +1,34 @@
+defaults:
+  modbus_uart_bus: modbus_uart
+
+external_components:
+  - source:
+      type: git
+      url: https://github.com/rosenrot00/esphome_modbus_bridge
+    components: [modbus_bridge]
+
+modbus_bridge:
+  id: mb_bridge
+  setup_priority: -20
+  uart_id: ${modbus_uart_bus}
+  tcp_port: 502
+  tcp_poll_interval: 50
+  tcp_client_timeout: 60000
+  tcp_allowed_clients: 2
+  rtu_response_timeout: 250
+
+switch:
+  - platform: template
+    id: modbus_debug_switch
+    name: "Modbus Bridge Debug"
+    restore_mode: RESTORE_DEFAULT_OFF
+    entity_category: config
+    disabled_by_default: true # hide from home assistant
+    turn_on_action:
+      - lambda: |-
+          id(mb_bridge).set_debug(true);
+          id(modbus_debug_switch).publish_state(true);
+    turn_off_action:
+      - lambda: |-
+          id(mb_bridge).set_debug(false);
+          id(modbus_debug_switch).publish_state(false);

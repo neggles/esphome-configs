@@ -1,0 +1,11 @@
+---
+web_server:
+  port: 80
+  auth:
+    username: admin
+    password: !secret web_password
+  version: 3 # shiny new pretty version
+  local: true # serve JS locally so this works offline
+
+ota:
+  - platform: web_server

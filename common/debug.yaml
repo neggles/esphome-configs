@@ -1,0 +1,16 @@
+defaults:
+  update_interval: 60s
+
+debug:
+  update_interval: ${update_interval}
+
+text_sensor:
+  - platform: debug
+    device:
+      name: Debug Info
+      entity_category: diagnostic
+      disabled_by_default: true
+    reset_reason:
+      name: Reset Reason
+      entity_category: diagnostic
+      disabled_by_default: true

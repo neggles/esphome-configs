@@ -1,0 +1,67 @@
+substitutions:
+  device: m5solar
+  name: "M5 Solar"
+  location: Garage
+  reboot_timeout: 14d
+  update_interval: 30s
+
+esphome:
+  name: "${device}"
+  friendly_name: "${name}"
+
+esp32:
+  board: m5stack-atom
+  framework:
+    type: esp-idf
+    version: recommended
+
+packages:
+  - !include common/base.yaml
+  - !include common/wifi.yaml
+  - !include common/web_server.yaml
+  - !include common/m5stack_status.yaml
+  - !include solar/solis-modbus-inv.yaml
+
+external_components:
+  - source:
+      type: git
+      url: https://github.com/rosenrot00/esphome_modbus_bridge
+    components: [modbus_bridge]
+    refresh: 1d
+
+time:
+  - platform: homeassistant
+    id: network_time
+
+wifi:
+  reboot_timeout: 15min
+  power_save_mode: NONE
+
+# UART for modbus
+uart:
+  id: uart_bus
+  rx_pin: GPIO32
+  tx_pin: GPIO26
+  baud_rate: 9600
+  stop_bits: 1
+  rx_buffer_size: 256
+
+modbus:
+  id: modbus_hw
+  uart_id: uart_bus
+
+modbus_controller:
+  - id: modbus_master
+    address: 0x1
+    modbus_id: modbus_hw
+    setup_priority: -10
+
+script:
+  - mode: restart
+    id: modbus_activity
+    then:
+      - status.push:
+          trigger_id: status_yellow
+      - delay: 0.5s
+      - status.pop:
+          trigger_id: status_yellow

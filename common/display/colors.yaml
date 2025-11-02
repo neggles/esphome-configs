@@ -1,0 +1,50 @@
+---
+color:
+  - id: rgb_red # #FF0000
+    hex: FF0000
+  - id: rgb_vermillion
+    hex: FF4000 # #FF4000
+  - id: rgb_orange # #FF8000
+    hex: FF8000
+  - id: rgb_amber # #FFC000
+    hex: FFC000
+  - id: rgb_yellow # #FFFF00
+    hex: FFFF00
+  - id: rgb_lime # #C0FF00
+    hex: C0FF00
+  - id: rgb_chartreuse # #80FF00
+    hex: 80FF00
+  - id: rgb_harlequin # #40FF00
+    hex: 40FF00
+  - id: rgb_green # #00FF00
+    hex: 00FF00
+  - id: rgb_erin # #00FF40
+    hex: 00FF40
+  - id: rgb_spring_green # #00FF80
+    hex: 00FF80
+  - id: rgb_aquamarine # #00FFC0
+    hex: 00FFC0
+  - id: rgb_cyan # #00FFFF
+    hex: 00FFFF
+  - id: rgb_sky_blue # #00C0FF
+    hex: 00C0FF
+  - id: rgb_azure # #0080FF
+    hex: 0080FF
+  - id: rgb_cerulean # #0040FF
+    hex: 0040FF
+  - id: rgb_blue # #0000FF
+    hex: 0000FF
+  - id: rgb_indigo # #4000FF
+    hex: 4000FF
+  - id: rgb_violet # #8000FF
+    hex: 8000FF
+  - id: rgb_purple # #C000FF
+    hex: C000FF
+  - id: rgb_magenta # #FF00FF
+    hex: FF00FF
+  - id: rgb_cerise # #FF00C0
+    hex: FF00C0
+  - id: rgb_rose # #FF007F
+    hex: FF007F
+  - id: rgb_crimson # #FF0040
+    hex: FF0040

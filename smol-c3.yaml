@@ -1,0 +1,156 @@
+substitutions:
+  device: smol-c3
+  name: "Smol C3"
+  area: Nowhere
+  update_interval: 60s
+
+  reboot_timeout: 15min
+  ap_timeout: 0s # disable automatic AP mode
+
+  log_level: DEBUG
+
+esphome:
+  name: "${device}"
+  friendly_name: "${name}"
+  area: ${area}
+
+esp32:
+  board: esp32-c3-devkitm-1
+  framework:
+    type: esp-idf
+
+packages:
+  base: !include common/base.yaml
+  wifi: !include common/wifi.yaml
+  web_server: !include common/web_server.yaml
+
+# enable debug logging
+logger:
+  level: ${log_level}
+
+# allow this device to go offline without going unavailable in Home Assistant
+deep_sleep:
+
+# BLE tracker to see other devices
+esp32_ble_tracker:
+
+bluetooth_proxy:
+  active: true
+  connection_slots: 3
+
+# status led
+status_led:
+  pin:
+    number: GPIO8
+    inverted: true
+    mode: output
+    ignore_strapping_warning: true
+
+# the button
+binary_sensor:
+  - id: button
+    name: "Button"
+    platform: gpio
+    pin:
+      number: GPIO9
+      mode: INPUT
+      inverted: true
+      ignore_strapping_warning: true
+    on_click:
+      then:
+        - display.page.show_next: oled_display
+        - component.update: oled_display
+
+
+# i2c for funny OLED display
+i2c:
+  - id: i2c0
+    sda: GPIO5
+    scl: GPIO6
+    scan: true
+    frequency: 400kHz
+
+# some sensors
+sensor:
+  # internal temperature sensor, cause why not
+  - platform: internal_temperature
+    id: cpu_temp
+    name: "CPU Temperature"
+
+  # temp sensor from zb02 on bed
+  - platform: homeassistant
+    id: inside_temp
+    entity_id: sensor.bedroom_zb02_temperature
+    internal: true
+
+  # BoM weather current temperature
+  - platform: homeassistant
+    id: outside_temp
+    entity_id: weather.ringwood
+    attribute: temperature
+    internal: true
+
+text_sensor:
+  # BoM weather temperature unit
+  - platform: homeassistant
+    id: outside_temp_unit
+    entity_id: weather.ringwood
+    attribute: temperature_unit
+    internal: true
+
+# fonts
+font:
+  - file: fonts/DejaVuSans-Regular.ttf
+    id: small
+    size: 10
+  - file: fonts/DejaVuSans-Regular.ttf
+    id: medium
+    size: 14
+  - file: fonts/DejaVuSans-Regular.ttf
+    id: large
+    size: 18
+
+# the actual display
+display:
+  - platform: ssd1306_i2c
+    id: oled_display
+    i2c_id: i2c0
+    model: "SSD1306 72x40"
+    rotation: 180
+    address: 0x3C
+    update_interval: 1s
+    pages:
+      - id: page_time_date
+        lambda: |-
+          // Print time in HH:MM:SS format
+          it.strftime(35, 23, id(medium), TextAlign::BASELINE_CENTER, "%X", id(network_time).now());
+          it.strftime(35, 26, id(small), TextAlign::TOP_CENTER, "%d %b %Y", id(network_time).now());
+      - id: page_inside_temp
+        lambda: |-
+          // Print inside temperature (from homeassistant sensor)
+          if (id(inside_temp).has_state()) {
+            it.printf(35, 23, id(large), TextAlign::BASELINE_CENTER, "%.1f°C", id(inside_temp).state);
+          } else {
+            it.printf(35, 23, id(large), TextAlign::BASELINE_CENTER , "N/A");
+          }
+          it.printf(35, 26, id(medium), TextAlign::TOP_CENTER , "Inside");
+      - id: page_outside_temp
+        lambda: |-
+          // Print outside temperature (from homeassistant weather)
+          if (id(outside_temp).has_state()) {
+            it.printf(35, 23, id(large), TextAlign::BASELINE_CENTER, "%.1f°C", id(outside_temp).state);
+          } else {
+            it.printf(35, 23, id(large), TextAlign::BASELINE_CENTER , "N/A");
+          }
+          it.printf(35, 26, id(medium), TextAlign::TOP_CENTER , "Outside");
+      - id: page_cpu_temp
+        lambda: |-
+          // Print CPU temperature
+          it.printf(35, 23, id(large), TextAlign::BASELINE_CENTER, "%.1f°C", id(cpu_temp).state);
+          it.printf(35, 26, id(medium), TextAlign::TOP_CENTER , "CPU");
+
+interval:
+  - interval: 5s
+    then:
+      - display.page.show_next: oled_display
+      - component.update: oled_display

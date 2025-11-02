@@ -1,0 +1,46 @@
+substitutions:
+  device: ikeasnif-1
+  name: "Particle Sensor 1"
+  location: Lounge
+  update_interval: 60s
+
+  reboot_timeout: 15min
+  ap_timeout: 0s # disable automatic AP mode
+
+  log_level: INFO
+
+esphome:
+  name: "${device}"
+  friendly_name: "${name}"
+  area: ${location}
+
+esp8266:
+  board: d1_mini
+
+# Enable logging
+logger:
+  level: INFO
+  hardware_uart: UART0
+  baud_rate: 115200
+
+packages:
+  base: !include common/base.yaml
+  wifi: !include
+    file:  common/wifi.yaml
+    vars:
+      wifi_power_save_mode: NONE
+
+# Status LED
+status_led:
+  pin: GPIO2
+
+# UART for PM1006 sensor in IKEA Vindriktning
+uart:
+  rx_pin: GPIO4
+  baud_rate: 9600
+
+sensor:
+  # the sensor, shockingly enough
+  - platform: pm1006
+    pm_2_5:
+      name: "Particulate Matter 2.5µm Concentration"

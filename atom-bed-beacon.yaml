@@ -1,0 +1,51 @@
+substitutions:
+  device: atom-bed-beacon
+  name: "Bed Beacon"
+  area: Bedroom
+  update_interval: 60s
+
+  reboot_timeout: 15min
+  ap_timeout: 0s # disable automatic AP mode
+
+  log_level: INFO
+
+esphome:
+  name: ${device}
+  friendly_name: ${name}
+  area: ${area}
+
+esp32:
+  board: m5stack-atom
+  framework:
+    type: esp-idf
+    version: recommended
+
+packages:
+  base: !include common/base.yaml
+  wifi: !include common/wifi.yaml
+  web_server: !include common/web_server.yaml
+  m5stack_status: !include
+    file: common/rgb/status.yaml
+    vars:
+      status_rgb_max_brt: 35%
+
+# allow going offline w/o going unavailable
+deep_sleep:
+
+# iBeacon for proximity
+esp32_ble_beacon:
+  id: ibeacon
+  type: iBeacon
+  uuid: !secret ibeacon_uuid
+  major: !secret ibeacon_major_home
+  minor: 10 # bed beacon
+  tx_power: 3 # dBm, default = 3
+  measured_power: -63
+
+# BLE tracker to see other devices
+esp32_ble_tracker:
+
+# BT proxy for home assistant
+bluetooth_proxy:
+  active: true
+  connection_slots: 3

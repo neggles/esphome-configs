@@ -1,0 +1,51 @@
+substitutions:
+  device: ikeasnif-2
+  name: "Particle Sensor 2"
+  location: Lab
+  update_interval: 60s
+
+  reboot_timeout: 15min
+  ap_timeout: 0s # disable automatic AP mode
+
+  log_level: INFO
+
+esphome:
+  name: ${device}
+  friendly_name: ${name}
+  area: ${location}
+
+esp32:
+  # friendship ended with ESP8266, now ESP32-C3 is my best friend
+  board: lolin_c3_mini
+  framework:
+    type: esp-idf
+
+packages:
+  base: !include common/base.yaml
+  wifi: !include common/wifi.yaml
+  web_server: !include common/web_server.yaml
+  # no it is not an M5Stack but the RGB status led stuff isn't really M5Stack-specific
+  m5stack_status: !include
+    file: common/m5stack/status.yaml
+    vars:
+      m5_button_gpio: GPIO9
+      m5_rgb_gpio: GPIO7
+      m5_rgb_max_brt: 50% # these RGB LEDs are way brighter than needed
+
+# enable debug logging
+logger:
+  level: ${log_level}
+
+# allow going offline w/o going unavailable
+deep_sleep:
+
+# UART for PM1006 sensor in IKEA Vindriktning
+uart:
+  rx_pin: GPIO6
+  baud_rate: 9600
+
+sensor:
+  # the sensor, shockingly enough
+  - platform: pm1006
+    pm_2_5:
+      name: "Particulate Matter 2.5µm Concentration"

@@ -1,0 +1,3 @@
+# ignore all files and folders (other repos will get cloned here)
+*
+!/.gitignore

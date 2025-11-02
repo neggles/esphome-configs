@@ -1,0 +1,25 @@
+defaults:
+  accel_i2c_bus: i2c1
+  accel_i2c_addr: 0x68
+  update_interval: ${update_interval}
+
+# onboard accelerometer
+sensor:
+  - platform: mpu6886
+    i2c_id: ${accel_i2c_bus}
+    address: ${accel_i2c_addr}
+    update_interval: ${update_interval}
+    accel_x:
+      name: "Accel X"
+    accel_y:
+      name: "Accel Y"
+    accel_z:
+      name: "Accel z"
+    gyro_x:
+      name: "Gyro X"
+    gyro_y:
+      name: "Gyro Y"
+    gyro_z:
+      name: "Gyro Z"
+    temperature:
+      name: "Temperature"

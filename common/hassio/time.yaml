@@ -1,0 +1,7 @@
+defaults:
+  timezone_string: Australia/Melbourne
+
+time:
+  - platform: homeassistant
+    id: network_time
+    timezone: ${timezone_string}

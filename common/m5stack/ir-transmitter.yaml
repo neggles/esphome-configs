@@ -1,0 +1,7 @@
+# onboard IR transmitter cuz why not
+defaults:
+  ir_tx_pin: GPIO12
+
+remote_transmitter:
+  pin: ${ir_tx_pin}
+  carrier_duty_percent: 50%

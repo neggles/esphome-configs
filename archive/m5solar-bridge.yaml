@@ -1,0 +1,65 @@
+substitutions:
+  device: m5solar-bridge
+  name: "M5 Solar"
+  location: Garage
+  reboot_timeout: 14d
+  update_interval: 30s
+
+esphome:
+  name: "${device}"
+  friendly_name: "${name}"
+
+esp32:
+  board: m5stack-atom
+  framework:
+    type: esp-idf
+    version: recommended
+
+packages:
+  - !include common/base.yaml
+  - !include common/wifi.yaml
+  - !include common/web_server.yaml
+  - !include common/m5stack_status.yaml
+
+external_components:
+  - source:
+      type: git
+      url: https://github.com/rosenrot00/esphome_modbus_bridge
+    components: [modbus_bridge]
+    refresh: 1d
+
+wifi:
+  reboot_timeout: 15min
+  power_save_mode: NONE
+
+# UART for modbus
+uart:
+  id: uart_bus
+  rx_pin: GPIO32
+  tx_pin: GPIO26
+  baud_rate: 9600
+  stop_bits: 1
+  rx_buffer_size: 256
+
+modbus_bridge:
+  id: mb_bridge
+  uart_id: uart_bus
+  tcp_port: 502               # TCP port
+  tcp_poll_interval: 50       # ms between TCP polls
+  tcp_client_timeout: 60000   # ms inactivity until TCP client is disconnected
+  tcp_allowed_clients: 2      # clamped to minimum 1, use with care as it increases memory usage
+  rtu_response_timeout: 3000  # ms, clamped internally to minimum of 10 ms)
+
+switch:
+  - platform: template
+    name: "Modbus Bridge Debug"
+    id: modbus_debug_switch
+    restore_mode: RESTORE_DEFAULT_OFF  # debug disabled by default; persists across reboots
+    turn_on_action:
+      - lambda: |-
+          id(mb_bridge).set_debug(true);
+          id(modbus_debug_switch).publish_state(true);
+    turn_off_action:
+      - lambda: |-
+          id(mb_bridge).set_debug(false);
+          id(modbus_debug_switch).publish_state(false);

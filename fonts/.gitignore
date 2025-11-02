@@ -1,0 +1,4 @@
+# ignore all files
+# I don't have redistribution licenses for fonts and they're easily re-downloadable anyway
+*
+!/.gitignore
