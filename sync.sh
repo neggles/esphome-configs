@@ -18,6 +18,7 @@ remote_target="hassio-esphome:"
 local_target="local-esphome:"
 rclone_opts=(
     --filter '- **/.{git,esphome,pioenvs,piolibdeps}/'
+    --filter '- .{git,esphome,pioenvs,piolibdeps}/'
     --filter '- /{lib,src}/'
     --filter '- /esphome/'
     --filter '- /.*'

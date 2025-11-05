@@ -27,6 +27,8 @@ packages:
   m5stack_status: !include
     file: common/rgb/status.yaml
     vars:
+      status_button_gpio: GPIO19
+      status_rgb_gpio: GPIO27
       status_rgb_max_brt: 35%
 
 # allow going offline w/o going unavailable

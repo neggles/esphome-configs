@@ -1,11 +1,11 @@
 defaults:
-  status_button_gpio: GPIO19 # atom lite button
-  status_rgb_gpio: GPIO27 # atom lite RGB LED
+  status_button_gpio: ${status_button_gpio}
+  status_rgb_gpio: ${status_rgb_gpio}
   status_rgb_count: 1
-  status_brt_max: 75%
-  status_brt_hi: 100%
-  status_brt_mid: 50%
-  status_brt_lo: 25%
+  status_rgb_brt_max: 75%
+  status_rgb_brt_hi: 100%
+  status_rgb_brt_mid: 50%
+  status_rgb_brt_lo: 25%
 
 external_components:
   - source: github://pr#5814
@@ -25,22 +25,22 @@ light:
     num_leds: ${status_rgb_count}
     chipset: SK6812
     color_correct:
-      - ${status_brt_max}
-      - ${status_brt_max}
-      - ${status_brt_max}
+      - ${status_rgb_brt_max}
+      - ${status_rgb_brt_max}
+      - ${status_rgb_brt_max}
     effects:
       - pulse:
           name: slow_pulse
           transition_length: 1s
           update_interval: 1s
-          min_brightness: ${status_brt_lo}
-          max_brightness: ${status_brt_hi}
+          min_brightness: ${status_rgb_brt_lo}
+          max_brightness: ${status_rgb_brt_hi}
       - pulse:
           name: fast_pulse
           transition_length: 200ms
           update_interval: 200ms
-          min_brightness: ${status_brt_lo}
-          max_brightness: ${status_brt_hi}
+          min_brightness: ${status_rgb_brt_lo}
+          max_brightness: ${status_rgb_brt_hi}
       - addressable_rainbow:
           name: rainbow
           speed: 10
@@ -97,16 +97,14 @@ binary_sensor:
           - delay: 1s
           - switch.turn_on: factory_reset_switch
 
-
-
 status_indicator:
   # half brightness solid green when everything is ok
   on_turn_off:
     then:
       - light.turn_on:
           id: status_rgb_led
-          <<: !include colors/red.yaml
-          brightness: ${status_brt_mid}
+          <<: !include colors/green.yaml
+          brightness: ${status_rgb_brt_mid}
           effect: none
 
   # slow red pulse on errors
@@ -115,7 +113,7 @@ status_indicator:
       - light.turn_on:
           id: status_rgb_led
           <<: !include colors/red.yaml
-          brightness: ${status_brt_hi}
+          brightness: ${status_rgb_brt_hi}
           effect: slow_pulse
 
   # slow orange pulse on warnings
@@ -124,7 +122,7 @@ status_indicator:
       - light.turn_on:
           id: status_rgb_led
           <<: !include colors/orange.yaml
-          brightness: ${status_brt_hi}
+          brightness: ${status_rgb_brt_hi}
           effect: slow_pulse
 
   # slow pale yellow pulse when AP mode is active
@@ -133,7 +131,7 @@ status_indicator:
       - light.turn_on:
           id: status_rgb_led
           <<: !include colors/yellow.yaml
-          brightness: ${status_brt_hi}
+          brightness: ${status_rgb_brt_hi}
           effect: slow_pulse
 
   # fast magenta pulse when no network
@@ -142,9 +140,8 @@ status_indicator:
       - light.turn_on:
           id: status_rgb_led
           <<: !include colors/magenta.yaml
-          brightness: ${status_brt_hi}
+          brightness: ${status_rgb_brt_hi}
           effect: fast_pulse
-
 
   # custom status triggers to be used by other components
   on_custom_status:
@@ -153,7 +150,7 @@ status_indicator:
         - light.turn_on: &status_red
             id: status_rgb_led
             <<: !include colors/red.yaml
-            brightness: ${status_brt_hi}
+            brightness: ${status_rgb_brt_hi}
             effect: None
     - trigger_id: status_red_pulse
       then:
@@ -171,7 +168,7 @@ status_indicator:
         - light.turn_on: &status_orange
             id: status_rgb_led
             <<: !include colors/orange.yaml
-            brightness: ${status_brt_hi}
+            brightness: ${status_rgb_brt_hi}
             effect: None
     - trigger_id: status_orange_pulse
       then:
@@ -191,7 +188,7 @@ status_indicator:
         - light.turn_on: &status_green
             id: status_rgb_led
             <<: !include colors/green.yaml
-            brightness: ${status_brt_hi}
+            brightness: ${status_rgb_brt_hi}
             effect: None
 
     - trigger_id: status_blue
@@ -199,7 +196,7 @@ status_indicator:
         - light.turn_on:
             id: status_rgb_led
             <<: !include colors/blue.yaml
-            brightness: ${status_brt_hi}
+            brightness: ${status_rgb_brt_hi}
             effect: None
 
     - trigger_id: status_cyan
@@ -207,7 +204,7 @@ status_indicator:
         - light.turn_on: &status_cyan
             id: status_rgb_led
             <<: !include colors/cyan.yaml
-            brightness: ${status_brt_hi}
+            brightness: ${status_rgb_brt_hi}
             effect: None
 
     - trigger_id: status_yellow
@@ -215,14 +212,13 @@ status_indicator:
         - light.turn_on:
             id: status_rgb_led
             <<: !include colors/yellow.yaml
-            brightness: ${status_brt_hi}
+            brightness: ${status_rgb_brt_hi}
             effect: None
-
 
     - trigger_id: status_purple
       then:
         - light.turn_on:
             id: status_rgb_led
             <<: !include colors/violet.yaml
-            brightness: ${status_brt_hi}
+            brightness: ${status_rgb_brt_hi}
             effect: None
