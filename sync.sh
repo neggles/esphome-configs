@@ -14,8 +14,8 @@ shift || true # Remove direction from args
 script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 cd "${script_dir}"
 
-remote_target="hassio-esphome"
-local_target="local-esphome"
+remote_target="hassio-esphome:"
+local_target="local-esphome:"
 rclone_opts=(
     --filter '- **/.{git,esphome,pioenvs,piolibdeps}/'
     --filter '- /{lib,src}/'
@@ -30,11 +30,11 @@ rclone_opts=(
 
 if [[ "$direction" == "push" ]]; then
     echo "Pushing to hassio..."
-    rclone sync -v "${rclone_opts[@]}" "$local_target:" "$remote_target:" "$@"
+    rclone sync -v "${rclone_opts[@]}" "$local_target" "$remote_target" "$@"
     exit $?
 elif [[ "$direction" == "pull" ]]; then
     echo "Pulling from hassio..."
-    rclone copy -v "${rclone_opts[@]}" "$remote_target:" "$local_target:" "$@"
+    rclone copy -v "${rclone_opts[@]}" "$remote_target" "$local_target" "$@"
     exit $?
 else
     echo "Invalid direction: $direction"
