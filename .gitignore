@@ -10,3 +10,5 @@
 /secrets.yaml
 /secrets.yml
 
+# don't need to bother
+/archive/
