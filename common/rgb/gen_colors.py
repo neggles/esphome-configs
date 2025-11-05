@@ -36,6 +36,7 @@ class Color:
                 f"red: {self.red}%",
                 f"green: {self.green}%",
                 f"blue: {self.blue}%",
+                "",
             ]
         )
 
