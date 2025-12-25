@@ -29,7 +29,7 @@ packages:
     vars:
       status_button_gpio: GPIO19
       status_rgb_gpio: GPIO27
-      status_rgb_max_brt: 35%
+      status_rgb_brt_max: 35%
 
 # allow going offline w/o going unavailable
 deep_sleep:

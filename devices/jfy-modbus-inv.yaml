@@ -1,0 +1,564 @@
+# jfy-modbus-inv.yaml -- Ginlong jfy INV Inverter modbus sensors include file
+# (C) 2023 Hajo Noerenberg
+# (C) 2025 Andi Powers-Holmes
+#
+# http://www.noerenberg.de/
+# https://github.com/hn/ginlong-jfy
+#
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3.0 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program. If not, see <http://www.gnu.org/licenses/gpl-3.0.txt>.
+#
+
+defaults:
+  jfy_modbus_bus: modbus_bus
+  jfy_modbus_addr: 1
+  jfy_time_source: network_time
+  jfy_update_interval: 30s
+  n_skip_infrequent: 9 # 5 minutes if jfy_update_interval is 30s
+
+  jfy_modbus_con_id: modbus_con_jfy
+
+modbus_controller:
+  - id: ${jfy_modbus_con_id}
+    address: ${jfy_modbus_addr}
+    modbus_id: ${jfy_modbus_bus}
+    setup_priority: -10
+    update_interval: ${jfy_update_interval}
+    command_throttle: 300ms
+    max_cmd_retries: 2
+
+web_server:
+  sorting_groups:
+    - id: sort_group_jfy_data
+      name: Inverter Data
+      sorting_weight: -20
+    - id: sort_group_jfy_state
+      name: Inverter Status
+      sorting_weight: -10
+    - id: sort_group_jfy_info
+      name: Inverter Info
+      sorting_weight: 10
+    - id: sort_group_jfy_settings
+      name: Inverter Settings
+      sorting_weight: 20
+
+# number:
+#   - platform: modbus_controller
+#     modbus_controller_id: ${jfy_modbus_con_id}
+#     name: Limit output power
+#     disabled_by_default: true
+#     register_type: holding
+#     address: 3051 # = 3052 - 1
+#     value_type: S_WORD
+#     unit_of_measurement: "%"
+#     entity_category: config
+#     icon: mdi:percent
+#     skip_updates: ${n_skip_infrequent}
+#     mode: box
+#     min_value: 0
+#     max_value: 110
+#     multiply: 100
+#     web_server:
+#       sorting_group_id: sort_group_jfy_settings
+
+select:
+  - platform: modbus_controller
+    modbus_controller_id: ${jfy_modbus_con_id}
+    name: Working Mode
+    disabled_by_default: true
+    address: 3040 # = 3041 - 1
+    value_type: U_WORD
+    entity_category: config
+    icon: mdi:cog-outline
+    skip_updates: ${n_skip_infrequent}
+    optionsmap:
+      "No response": 0
+      "Volt-Watt": 1
+      "Volt-VAr": 2
+      "Fixed power factor": 3
+      "Fixed VAr": 4
+      "Power-PF": 5
+      "Rule 21 Volt-Watt": 6
+    web_server:
+      sorting_group_id: sort_group_jfy_settings
+      sorting_weight: 10
+    on_value:
+      then:
+        - logger.log:
+            format: "Attempted to set working mode to 0x%04x"
+            args: [x]
+            level: INFO
+
+binary_sensor:
+  - platform: modbus_controller
+    name: Normal
+    id: jfy_${jfy_modbus_addr}_operational
+    modbus_controller_id: ${jfy_modbus_con_id}
+    register_type: read
+    address: 3071 # = 3072 - 1
+    bitmask: 0x0001
+    device_class: running
+    web_server:
+      sorting_group_id: sort_group_jfy_state
+      sorting_weight: 5
+
+  - platform: modbus_controller
+    name: Initializing
+    id: jfy_${jfy_modbus_addr}_initializing
+    modbus_controller_id: ${jfy_modbus_con_id}
+    register_type: read
+    address: 3071 # = 3072 - 1
+    bitmask: 0x0002
+    device_class: problem
+    web_server:
+      sorting_group_id: sort_group_jfy_state
+      sorting_weight: 10
+
+  - platform: modbus_controller
+    id: jfy_${jfy_modbus_addr}_grid_off
+    name: Grid Off
+    modbus_controller_id: ${jfy_modbus_con_id}
+    register_type: read
+    address: 3071 # = 3072 - 1
+    bitmask: 0x0004
+    device_class: problem
+    web_server:
+      sorting_group_id: sort_group_jfy_state
+      sorting_weight: 15
+
+  - platform: modbus_controller
+    id: jfy_${jfy_modbus_addr}_critical_fault
+    modbus_controller_id: ${jfy_modbus_con_id}
+    name: Critical Fault
+    register_type: read
+    address: 3071 # = 3072 - 1
+    bitmask: 0x0008
+    device_class: problem
+    web_server:
+      sorting_group_id: sort_group_jfy_state
+      sorting_weight: 20
+
+  - platform: modbus_controller
+    id: jfy_${jfy_modbus_addr}_standby_mode
+    name: Standby Mode
+    modbus_controller_id: ${jfy_modbus_con_id}
+    register_type: read
+    address: 3071 # = 3072 - 1
+    bitmask: 0x0010
+    device_class: problem
+    web_server:
+      sorting_group_id: sort_group_jfy_state
+      sorting_weight: 25
+
+  - platform: modbus_controller
+    id: jfy_${jfy_modbus_addr}_drm_de_rating
+    name: De-rating active
+    modbus_controller_id: ${jfy_modbus_con_id}
+    register_type: read
+    address: 3071 # = 3072 - 1
+    bitmask: 0x0020
+    device_class: problem
+    web_server:
+      sorting_group_id: sort_group_jfy_state
+      sorting_weight: 30
+
+  - platform: modbus_controller
+    id: jfy_${jfy_modbus_addr}_power_limiter
+    name: Power limiting
+    modbus_controller_id: ${jfy_modbus_con_id}
+    register_type: read
+    address: 3071 # = 3072 - 1
+    bitmask: 0x0040
+    device_class: problem
+    web_server:
+      sorting_group_id: sort_group_jfy_state
+      sorting_weight: 35
+
+  - platform: modbus_controller
+    id: jfy_${jfy_modbus_addr}_grid_surge
+    name: Grid Surge
+    modbus_controller_id: ${jfy_modbus_con_id}
+    register_type: read
+    address: 3071 # = 3072 - 1
+    bitmask: 0x0100
+    device_class: problem
+    web_server:
+      sorting_group_id: sort_group_jfy_state
+      sorting_weight: 40
+
+  - platform: modbus_controller
+    id: jfy_${jfy_modbus_addr}_fan_fault
+    name: Fan Fault
+    modbus_controller_id: ${jfy_modbus_con_id}
+    register_type: read
+    address: 3071 # = 3072 - 1
+    bitmask: 0x0200
+    device_class: problem
+    web_server:
+      sorting_group_id: sort_group_jfy_state
+      sorting_weight: 45
+
+
+sensor:
+  - platform: modbus_controller
+    modbus_controller_id: ${jfy_modbus_con_id}
+    name: AC output power
+    device_class: power
+    state_class: measurement
+    unit_of_measurement: W
+    register_type: read
+    address: 3004 # = 3005 - 1
+    value_type: U_DWORD
+    web_server:
+      sorting_group_id: sort_group_jfy_data
+      sorting_weight: 0
+
+  - platform: modbus_controller
+    modbus_controller_id: ${jfy_modbus_con_id}
+    name: DC output power
+    device_class: power
+    state_class: measurement
+    unit_of_measurement: W
+    register_type: read
+    address: 3006 # = 3007 - 1
+    value_type: U_DWORD
+    web_server:
+      sorting_group_id: sort_group_jfy_data
+      sorting_weight: 1
+
+  - platform: modbus_controller
+    modbus_controller_id: ${jfy_modbus_con_id}
+    name: Total energy
+    device_class: energy
+    state_class: total_increasing
+    unit_of_measurement: kWh
+    register_type: read
+    address: 3008 # = 3009 - 1
+    value_type: U_DWORD
+    force_new_range: true # workaround to seperate reg 3006: "skip_updates applies for all components in the same range"
+    skip_updates: ${n_skip_infrequent}
+    web_server:
+      sorting_group_id: sort_group_jfy_data
+      sorting_weight: 100
+
+  - platform: modbus_controller
+    modbus_controller_id: ${jfy_modbus_con_id}
+    name: Energy this month
+    device_class: energy
+    state_class: total_increasing
+    unit_of_measurement: kWh
+    register_type: read
+    address: 3010 # = 3011 - 1
+    value_type: U_DWORD
+    skip_updates: ${n_skip_infrequent}
+    web_server:
+      sorting_group_id: sort_group_jfy_data
+
+  - platform: modbus_controller
+    modbus_controller_id: ${jfy_modbus_con_id}
+    name: Energy last month
+    device_class: energy
+    state_class: total_increasing
+    unit_of_measurement: kWh
+    register_type: read
+    address: 3012 # = 3013 - 1
+    value_type: U_DWORD
+    skip_updates: ${n_skip_infrequent}
+    web_server:
+      sorting_group_id: sort_group_jfy_data
+
+  - platform: modbus_controller
+    modbus_controller_id: ${jfy_modbus_con_id}
+    name: Energy today
+    device_class: energy
+    state_class: total_increasing
+    unit_of_measurement: kWh
+    register_type: read
+    address: 3014 # = 3015 - 1
+    value_type: U_WORD
+    accuracy_decimals: 1
+    skip_updates: ${n_skip_infrequent}
+    filters:
+      - multiply: 0.1
+    web_server:
+      sorting_group_id: sort_group_jfy_data
+
+  - platform: modbus_controller
+    modbus_controller_id: ${jfy_modbus_con_id}
+    name: Energy last day
+    device_class: energy
+    state_class: total_increasing
+    unit_of_measurement: kWh
+    register_type: read
+    address: 3015 # = 3016 - 1
+    value_type: U_WORD
+    accuracy_decimals: 1
+    skip_updates: ${n_skip_infrequent}
+    filters:
+      - multiply: 0.1
+    web_server:
+      sorting_group_id: sort_group_jfy_data
+
+  - platform: modbus_controller
+    modbus_controller_id: ${jfy_modbus_con_id}
+    name: DC voltage 1
+    device_class: voltage
+    state_class: measurement
+    unit_of_measurement: V
+    register_type: read
+    address: 3021 # = 3022 - 1
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+      - timeout:
+          timeout: 300s
+          value: 0
+    web_server:
+      sorting_group_id: sort_group_jfy_data
+
+  - platform: modbus_controller
+    modbus_controller_id: ${jfy_modbus_con_id}
+    name: DC current 1
+    device_class: current
+    state_class: measurement
+    unit_of_measurement: A
+    register_type: read
+    address: 3022 # = 3023 - 1
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+      - timeout:
+          timeout: 300s
+          value: 0
+    web_server:
+      sorting_group_id: sort_group_jfy_data
+
+  - platform: modbus_controller
+    modbus_controller_id: ${jfy_modbus_con_id}
+    name: DC voltage 2
+    device_class: voltage
+    state_class: measurement
+    unit_of_measurement: V
+    register_type: read
+    address: 3023 # = 3024 - 1
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+      - timeout:
+          timeout: 300s
+          value: 0
+    web_server:
+      sorting_group_id: sort_group_jfy_data
+
+  - platform: modbus_controller
+    modbus_controller_id: ${jfy_modbus_con_id}
+    name: DC current 2
+    device_class: current
+    state_class: measurement
+    unit_of_measurement: A
+    register_type: read
+    address: 3024 # = 3025 - 1
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+      - timeout:
+          timeout: 300s
+          value: 0
+    web_server:
+      sorting_group_id: sort_group_jfy_data
+
+  - platform: modbus_controller
+    modbus_controller_id: ${jfy_modbus_con_id}
+    name: AC voltage
+    device_class: voltage
+    state_class: measurement
+    unit_of_measurement: V
+    register_type: read
+    address: 3035 # = 3036 - 1
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+      - timeout:
+          timeout: 300s
+          value: 0
+    web_server:
+      sorting_group_id: sort_group_jfy_data
+
+  - platform: modbus_controller
+    modbus_controller_id: ${jfy_modbus_con_id}
+    name: Inverter temperature
+    device_class: temperature
+    state_class: measurement
+    unit_of_measurement: °C
+    register_type: read
+    address: 3041 # = 3042 - 1
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+      - timeout: 300s
+    web_server:
+      sorting_group_id: sort_group_jfy_data
+
+  - platform: modbus_controller
+    modbus_controller_id: ${jfy_modbus_con_id}
+    name: Grid frequency
+    device_class: frequency
+    state_class: measurement
+    unit_of_measurement: Hz
+    register_type: read
+    address: 3042 # = 3043 - 1
+    value_type: U_WORD
+    accuracy_decimals: 2
+    filters:
+      - multiply: 0.01
+      - timeout: 300s
+    web_server:
+      sorting_group_id: sort_group_jfy_data
+
+text_sensor:
+  - platform: modbus_controller
+    modbus_controller_id: ${jfy_modbus_con_id}
+    name: Product model
+    register_type: read
+    address: 2999 # = 3000 - 1
+    response_size: 2
+    raw_encode: HEXBYTES
+    entity_category: diagnostic
+    icon: mdi:factory
+    skip_updates: ${n_skip_infrequent}
+    web_server:
+      sorting_group_id: sort_group_jfy_info
+
+  - platform: modbus_controller
+    modbus_controller_id: ${jfy_modbus_con_id}
+    name: DSP software version
+    register_type: read
+    address: 3000 # = 3001 - 1
+    response_size: 2
+    force_new_range: true # workaround for bug concatening model, dsp and lcd
+    raw_encode: HEXBYTES
+    entity_category: diagnostic
+    icon: mdi:chip
+    skip_updates: ${n_skip_infrequent}
+    web_server:
+      sorting_group_id: sort_group_jfy_info
+
+  - platform: modbus_controller
+    modbus_controller_id: ${jfy_modbus_con_id}
+    name: LCD software version
+    register_type: read
+    address: 3001 # = 3002 - 1
+    response_size: 2
+    raw_encode: HEXBYTES
+    entity_category: diagnostic
+    icon: mdi:chip
+    skip_updates: ${n_skip_infrequent}
+    web_server:
+      sorting_group_id: sort_group_jfy_info
+
+  - platform: modbus_controller
+    modbus_controller_id: ${jfy_modbus_con_id}
+    name: Country standard code
+    register_type: read
+    address: 3053 # = 3054 - 1
+    response_size: 2
+    raw_encode: HEXBYTES
+    entity_category: diagnostic
+    icon: mdi:earth
+    skip_updates: ${n_skip_infrequent}
+    lambda: |-
+      uint16_t value = modbus_controller::word_from_hex_str(x, 0);
+      switch (value) {
+        /* jfy Spec Appendix 3 */
+        case 0x003: return std::string("VDE0126");
+        case 0x004: return std::string("AS4777");
+        case 0x005: return std::string("AS4777-NQ");
+        case 0x006: return std::string("CQCA");
+        case 0x009: return std::string("MEX-CFE");
+        case 0x00B: return std::string("VDE4105");
+      }
+      return x;
+    web_server:
+      sorting_group_id: sort_group_jfy_info
+      sorting_weight: 5
+
+  - platform: modbus_controller
+    modbus_controller_id: ${jfy_modbus_con_id}
+    name: Inverter SN
+    register_type: read
+    address: 3060 # = 3061 - 1
+    register_count: 4
+    raw_encode: HEXBYTES
+    entity_category: diagnostic
+    icon: mdi:numeric
+    skip_updates: ${n_skip_infrequent}
+    lambda: |-
+      char serialnumber[2 * 8 + 1];
+      for (int j = 0; j < 8; j++) {
+        unsigned int r = data[item->offset + j + (j + 1) % 2 - j % 2];
+        sprintf(serialnumber + (j * 2), "%02x", (r & 0x0F) << 4 | (r & 0xF0) >> 4);
+      }
+      serialnumber[2 * 8] = 0;
+      return std::string(serialnumber);
+    web_server:
+      sorting_group_id: sort_group_jfy_info
+      sorting_weight: 10
+
+  - platform: modbus_controller
+    modbus_controller_id: ${jfy_modbus_con_id}
+    id: inverter_rtc
+    register_type: holding
+    address: 2999 # = 3000 - 1
+    register_count: 6
+    raw_encode: HEXBYTES
+    entity_category: diagnostic
+    icon: mdi:clock-digital
+    skip_updates: ${n_skip_infrequent}
+    lambda: |-
+      time_t i_t;
+      struct tm i_tm = { 0 };
+      i_tm.tm_year  = static_cast<int>((static_cast<uint16_t>(data[item->offset + 0]) << 8) | data[item->offset + 1]) + 2000 - 1900;
+      i_tm.tm_mon   = static_cast<int>((static_cast<uint16_t>(data[item->offset + 2]) << 8) | data[item->offset + 3]) - 1;
+      i_tm.tm_mday  = static_cast<int>((static_cast<uint16_t>(data[item->offset + 4]) << 8) | data[item->offset + 5]);
+      i_tm.tm_hour  = static_cast<int>((static_cast<uint16_t>(data[item->offset + 6]) << 8) | data[item->offset + 7]);
+      i_tm.tm_min   = static_cast<int>((static_cast<uint16_t>(data[item->offset + 8]) << 8) | data[item->offset + 9]);
+      i_tm.tm_sec   = static_cast<int>((static_cast<uint16_t>(data[item->offset + 10]) << 8) | data[item->offset + 11]);
+      i_tm.tm_isdst = -1;
+      i_t = mktime(&i_tm);
+      ESP_LOGI("SyncInverterRTC", "Inverter RTC is %02d:%02d:%02d %04d-%02d-%02d",
+        i_tm.tm_hour, i_tm.tm_min, i_tm.tm_sec, i_tm.tm_year + 1900, i_tm.tm_mon + 1, i_tm.tm_mday);
+      auto s_espt = id(${jfy_time_source}).now();
+      if (s_espt.is_valid()) {
+        double deviation = difftime(i_t, s_espt.timestamp);
+        if (abs(deviation) > 42) {
+          std::vector<uint16_t> rtc_data =
+            {(uint16_t) (s_espt.year % 100), s_espt.month, s_espt.day_of_month, s_espt.hour, s_espt.minute, s_espt.second};
+          auto set_rtc_command =
+            modbus_controller::ModbusCommandItem::create_write_multiple_command(${jfy_modbus_con_id}, item->start_address, item->register_count, rtc_data);
+          ${jfy_modbus_con_id}->queue_command(set_rtc_command);
+          ESP_LOGI("SyncInverterRTC", "Inverter RTC deviation=%.fs, updated RTC to %02d:%02d:%02d %04d-%02d-%02d",
+            deviation, s_espt.hour, s_espt.minute, s_espt.second, s_espt.year, s_espt.month, s_espt.day_of_month);
+        }
+      } else {
+        ESP_LOGI("SyncInverterRTC", "Inverter RTC not checked because NTP is not yet synchronised");
+      }
+      return {};
+    web_server:
+      sorting_group_id: sort_group_jfy_info
+      sorting_weight: 20

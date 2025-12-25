@@ -1,0 +1,59 @@
+substitutions:
+    device: kgsolar
+    name: "KG Solar Inverter"
+    update_interval: 60s
+
+    # disable auto-reboot on API disconnect
+    reboot_timeout: 0s
+    # disable automatic fallback AP mode
+    ap_timeout: 0s
+
+    log_level: INFO
+
+esphome:
+    name: "${device}"
+    friendly_name: "${name}"
+
+esp32:
+    board: m5stack-atoms3
+    framework:
+        type: esp-idf
+        version: recommended
+
+packages:
+    base: !include common/base.yaml
+    wifi: !include
+        file: common/wifi.yaml
+        vars:
+            wifi_power_save_mode: NONE # this prevents use of BLE
+    web_server: !include common/web_server.yaml
+    rgb_status: !include
+        file: common/rgb/status.yaml
+        vars:
+            status_button_gpio: GPIO41
+            status_rgb_gpio: GPIO35
+            status_rgb_brt_max: 50%
+    modbus_bridge: !include devices/modbus-bridge.yaml
+
+# enable debug logging
+logger:
+    level: ${log_level}
+
+# allow this device to go offline without going unavailable in Home Assistant
+# n.b. this doesn't seem to actually work
+deep_sleep:
+
+# UART for Modbus RTU
+uart:
+    id: modbus_uart
+    tx_pin: GPIO2
+    rx_pin: GPIO1
+    baud_rate: 9600
+    data_bits: 8
+    parity: NONE
+    stop_bits: 1
+
+modbus:
+    id: modbus_bus
+    uart_id: modbus_uart
+    send_wait_time: 250ms

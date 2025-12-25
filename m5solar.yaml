@@ -26,10 +26,11 @@ packages:
       wifi_power_save_mode: NONE # this prevents use of BLE
   web_server: !include common/web_server.yaml
   m5stack_status: !include
-    file: common/m5stack/status.yaml
+    file: common/rgb/status.yaml
     vars:
-      m5_button_gpio: GPIO41
-      m5_rgb_gpio: GPIO35
+      status_button_gpio: GPIO41
+      status_rgb_gpio: GPIO35
+      status_rgb_brt_max: 75%
   solis: !include
     file: devices/solis-modbus-inv.yaml
     vars:

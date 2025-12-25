@@ -8,9 +8,9 @@ defaults:
   status_rgb_brt_lo: 25%
 
 external_components:
-  - source: github://pr#5814
-    components: [status_indicator, wifi]
-    refresh: 1d
+  - source: github://neggles/esphome@rgb-status-indicator
+    components: [status_indicator]
+    refresh: "1h"
 
 # Status LED
 light:
@@ -126,7 +126,7 @@ status_indicator:
           effect: slow_pulse
 
   # slow pale yellow pulse when AP mode is active
-  on_wifi_ap_enabled:
+  on_wifi_ap_active:
     then:
       - light.turn_on:
           id: status_rgb_led

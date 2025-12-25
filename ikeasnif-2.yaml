@@ -26,11 +26,11 @@ packages:
   web_server: !include common/web_server.yaml
   # no it is not an M5Stack but the RGB status led stuff isn't really M5Stack-specific
   m5stack_status: !include
-    file: common/m5stack/status.yaml
+    file: common/rgb/status.yaml
     vars:
-      m5_button_gpio: GPIO9
-      m5_rgb_gpio: GPIO7
-      m5_rgb_max_brt: 50% # these RGB LEDs are way brighter than needed
+      status_button_gpio: GPIO9
+      status_rgb_gpio: GPIO7
+      status_rgb_brt_max: 50% # these RGB LEDs are way brighter than needed
 
 # enable debug logging
 logger:

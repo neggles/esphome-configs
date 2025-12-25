@@ -1,7 +1,8 @@
 ---
 defaults:
-  reboot_timeout: ${reboot_timeout}
+  reboot_timeout: 15min
   ap_timeout: 1min
+  update_interval: 60s
   wifi_power_save_mode: LIGHT
 
 wifi:

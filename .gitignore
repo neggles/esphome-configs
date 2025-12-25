@@ -10,5 +10,8 @@
 /secrets.yaml
 /secrets.yml
 
+# temporary files
+/temp/
+
 # don't need to bother
 /archive/

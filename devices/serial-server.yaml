@@ -1,0 +1,17 @@
+defaults:
+  serial_server_uart: server_uart
+  serial_server_port: 6638
+
+external_components:
+  - source: github://tube0013/esphome-stream-server-v2
+
+stream_server:
+  id: serial_server
+  uart_id: ${serial_server_uart}
+  port: ${serial_server_port}
+
+binary_sensor:
+  - platform: stream_server
+    name: Serial Connected
+    stream_server: serial_server
+    entity_category: diagnostic

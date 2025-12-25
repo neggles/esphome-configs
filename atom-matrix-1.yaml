@@ -23,10 +23,11 @@ packages:
   wifi: !include common/wifi.yaml
   web_server: !include common/web_server.yaml
   m5stack_status: !include
-    file: common/m5stack/status.yaml
+    file: common/rgb/status.yaml
     vars:
-      m5_rgb_max_brt: 50%
-      m5_rgb_count: 25
+      status_button_gpio: GPIO19
+      status_rgb_gpio: GPIO27
+      status_rgb_brt_max: 35%
   mpu6886_accel: !include common/m5stack/mpu6886-accel.yaml
   # device-specific
   modbus_bridge: !include devices/modbus-bridge.yaml
