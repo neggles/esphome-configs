@@ -1,7 +1,7 @@
 substitutions:
   device: ikeasnif-2
   name: "Particle Sensor 2"
-  location: Lab
+  area: Lab
   update_interval: 60s
 
   reboot_timeout: 15min
@@ -12,7 +12,7 @@ substitutions:
 esphome:
   name: ${device}
   friendly_name: ${name}
-  area: ${location}
+  area: ${area}
 
 esp32:
   # friendship ended with ESP8266, now ESP32-C3 is my best friend
@@ -25,7 +25,7 @@ packages:
   wifi: !include common/wifi.yaml
   web_server: !include common/web_server.yaml
   # no it is not an M5Stack but the RGB status led stuff isn't really M5Stack-specific
-  m5stack_status: !include
+  rgb_status: !include
     file: common/rgb/status.yaml
     vars:
       status_button_gpio: GPIO9

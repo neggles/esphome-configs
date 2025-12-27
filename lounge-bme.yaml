@@ -1,0 +1,148 @@
+substitutions:
+  device: lounge-bme
+  name: "Lounge Air Monitor"
+  area: Nowhere
+  update_interval: 60s
+
+  reboot_timeout: 15min
+  ap_timeout: 0s # disable automatic AP mode
+
+  log_level: DEBUG
+
+esphome:
+  name: "${device}"
+  friendly_name: "${name}"
+  area: ${area}
+
+esp32:
+  board: esp32-c3-devkitm-1
+  framework:
+    type: esp-idf
+
+packages:
+  base: !include common/base.yaml
+  wifi: !include common/wifi.yaml
+  web_server: !include common/web_server.yaml
+  rgb_status: !include
+    file: common/rgb/status.yaml
+    vars:
+      status_button_gpio: GPIO0
+      status_rgb_gpio: GPIO8
+      status_rgb_brt_max: 35%
+
+# enable debug logging
+logger:
+  level: ${log_level}
+
+# allow this device to go offline without going unavailable in Home Assistant
+deep_sleep:
+
+# BLE tracker to see other devices
+esp32_ble_tracker:
+
+# BT proxy for home assistant
+bluetooth_proxy:
+  active: true
+  connection_slots: 3
+
+# i2c for bosch BME680
+i2c:
+  - id: i2c0
+    sda: GPIO4
+    scl: GPIO5
+    scan: true
+    frequency: 400kHz
+
+# bosch bme680 driver using BSEC2
+bme68x_bsec2_i2c:
+  id: bme680
+  model: bme680
+  i2c_id: i2c0
+  address: 0x76
+  operating_age: 28d
+  sample_rate: LP # 3 seconds, ULP for 5 mins
+
+# some sensors
+sensor:
+  # internal temperature sensor, cause why not
+  - platform: internal_temperature
+    id: cpu_temp
+    name: "CPU Temperature"
+    device_class: temperature
+    entity_category: diagnostic
+
+  # BME68x sensors
+  - platform: bme68x_bsec2
+    temperature:
+      id: temperature
+      name: "Temperature"
+      device_class: temperature
+    pressure:
+      id: pressure
+      name: "Pressure"
+      device_class: atmospheric_pressure
+    humidity:
+      id: humidity
+      name: "Humidity"
+      device_class: humidity
+    gas_resistance:
+      id: gas_resistance
+      name: "Gas Resistance"
+      device_class: gas
+
+    iaq:
+      id: iaq
+      name: "IAQ"
+    iaq_static:
+      id: iaq_static
+      name: "IAQ Static"
+      entity_category: diagnostic
+    iaq_accuracy:
+      id: iaq_accuracy_enum
+      name: "IAQ Accuracy State"
+      entity_category: diagnostic
+      disabled_by_default: true
+
+    co2_equivalent:
+      id: co2_equiv
+      name: "CO2 Equivalent"
+      device_class: carbon_dioxide
+
+    breath_voc_equivalent:
+      id: breath_voc_equiv
+      name: "Breath VOC Equivalent"
+      device_class: volatile_organic_compounds
+
+text_sensor:
+  - platform: bme68x_bsec2
+    iaq_accuracy:
+      id: iaq_accuracy
+      name: "IAQ Accuracy"
+
+  - platform: template
+    name: "IAQ Classification"
+    lambda: |-
+      if ( int(id(iaq).state) <= 50) {
+        return {"Excellent"};
+      }
+      else if (int(id(iaq).state) >= 51 && int(id(iaq).state) <= 100) {
+        return {"Good"};
+      }
+      else if (int(id(iaq).state) >= 101 && int(id(iaq).state) <= 150) {
+        return {"Lightly polluted"};
+      }
+      else if (int(id(iaq).state) >= 151 && int(id(iaq).state) <= 200) {
+        return {"Moderately polluted"};
+      }
+      else if (int(id(iaq).state) >= 201 && int(id(iaq).state) <= 250) {
+        return {"Heavily polluted"};
+      }
+      else if (int(id(iaq).state) >= 251 && int(id(iaq).state) <= 350) {
+        return {"Severely polluted"};
+      }
+      else if (int(id(iaq).state) >= 351) {
+        return {"Extremely polluted"};
+      }
+      else {
+        return {"error"};
+      }

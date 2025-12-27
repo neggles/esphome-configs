@@ -1,7 +1,7 @@
 substitutions:
   device: ikeasnif-1
   name: "Particle Sensor 1"
-  location: Lounge
+  area: Lounge
   update_interval: 60s
 
   reboot_timeout: 15min
@@ -10,9 +10,9 @@ substitutions:
   log_level: INFO
 
 esphome:
-  name: "${device}"
-  friendly_name: "${name}"
-  area: ${location}
+  name: ${device}
+  friendly_name: ${name}
+  area: ${area}
 
 esp8266:
   board: d1_mini
