@@ -1,5 +1,5 @@
 defaults:
-  accel_i2c_bus: i2c1
+  accel_i2c_bus: i2c0
   accel_i2c_addr: 0x68
   update_interval: ${update_interval}
 
@@ -10,16 +10,31 @@ sensor:
     address: ${accel_i2c_addr}
     update_interval: ${update_interval}
     accel_x:
+      id: mpu_accel_x
       name: "Accel X"
+      icon: mdi:axis-x-arrow
     accel_y:
+      id: mpu_accel_y
       name: "Accel Y"
+      icon: mdi:axis-y-arrow
     accel_z:
-      name: "Accel z"
+      id: mpu_accel_z
+      name: "Accel Z"
+      icon: mdi:axis-z-arrow
     gyro_x:
+      id: mpu_gyro_x
       name: "Gyro X"
+      icon: mdi:axis-x-rotate-clockwise
     gyro_y:
+      id: mpu_gyro_y
       name: "Gyro Y"
+      icon: mdi:axis-y-rotate-clockwise
     gyro_z:
+      id: mpu_gyro_z
       name: "Gyro Z"
+      icon: mdi:axis-z-rotate-clockwise
     temperature:
-      name: "Temperature"
+      id: mpu_temperature
+      name: "MPU6886 Temperature"
+      icon: mdi:thermometer
+      entity_category: diagnostic

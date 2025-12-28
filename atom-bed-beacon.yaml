@@ -51,3 +51,9 @@ esp32_ble_tracker:
 bluetooth_proxy:
   active: true
   connection_slots: 3
+
+binary_sensor:
+  - platform: ble_presence
+    name: "Arcturus Proximity"
+    irk: !secret ble_irk_arcturus
+    timeout: 60s
