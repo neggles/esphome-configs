@@ -7,7 +7,7 @@ substitutions:
   reboot_timeout: 15min
   ap_timeout: 0s # disable automatic AP mode
 
-  log_level: DEBUG
+  log_level: INFO
 
 esphome:
   name: "${device}"
@@ -32,14 +32,12 @@ packages:
       status_rgb_gpio: GPIO27
       # turning this up too high is not only eye-searing but could damage the unit
       status_rgb_brt_max: 25%
-  mpu6886_accel: !include
-    file: common/m5stack/mpu6886-accel.yaml
-    vars:
-      update_interval: 20s
+  # mpu6886_accel: !include common/m5stack/mpu6886-accel.yaml
   bme680: !include
     file: devices/sensor/bme680.yaml
     vars:
       bme_i2c_id: i2c0
+      bme_i2c_addr: 0x77
       bme_bsec2_id: bme680
       bme_sample_rate: LP
       bme_operating_age: 28d

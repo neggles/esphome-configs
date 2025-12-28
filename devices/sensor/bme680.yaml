@@ -3,6 +3,7 @@ defaults:
   bme_i2c_addr: 0x76
   bme_bsec2_id: bme680
   bme_operating_age: 28d
+  bme_accuracy_decimals: 2
   bme_sample_rate: LP # 3 seconds, ULP for 5 mins
   update_interval: ${update_interval}
 
@@ -25,30 +26,35 @@ sensor:
       icon: mdi:thermometer
       device_class: temperature
       state_class: measurement
+      accuracy_decimals: ${bme_accuracy_decimals}
     pressure:
       id: bme_pressure
       name: "Pressure"
       icon: mdi:weather-windy
       device_class: atmospheric_pressure
       state_class: measurement
+      accuracy_decimals: ${bme_accuracy_decimals}
     humidity:
       id: bme_humidity
       name: "Humidity"
       icon: mdi:water-percent
       device_class: humidity
       state_class: measurement
+      accuracy_decimals: ${bme_accuracy_decimals}
     co2_equivalent:
       id: co2_equiv
       name: "CO2 Equivalent"
       icon: mdi:molecule-co2
       device_class: carbon_dioxide
       state_class: measurement
+      accuracy_decimals: ${bme_accuracy_decimals}
     breath_voc_equivalent:
       id: breath_voc_equiv
       name: "Breath VOC Equivalent"
       icon: mdi:scent
       device_class: volatile_organic_compounds
       state_class: measurement
+      accuracy_decimals: ${bme_accuracy_decimals}
 
     iaq:
       id: bme_iaq
@@ -56,17 +62,20 @@ sensor:
       icon: mdi:air-filter
       device_class: aqi
       state_class: measurement
+      accuracy_decimals: 0
     iaq_static:
       id: bme_iaq_static
       name: "IAQ Static"
       icon: mdi:air-filter
       device_class: aqi
       state_class: measurement
+      accuracy_decimals: 0
     iaq_accuracy:
       id: bme_iaq_accuracy_int
       name: "IAQ Accuracy Value"
       icon: mdi:chemical-weapon
       entity_category: diagnostic
+      accuracy_decimals: 0
 
     gas_resistance:
       id: bme_gas_resistance
@@ -74,6 +83,7 @@ sensor:
       device_class: gas
       state_class: measurement
       entity_category: diagnostic
+      accuracy_decimals: 1
 
 text_sensor:
   - platform: bme68x_bsec2
