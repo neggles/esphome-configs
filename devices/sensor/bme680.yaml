@@ -5,6 +5,7 @@ defaults:
   bme_operating_age: 28d
   bme_accuracy_decimals: 2
   bme_sample_rate: LP # 3 seconds, ULP for 5 mins
+  bme_temp_offset: 0.0
   update_interval: ${update_interval}
 
 # bosch bme680 driver using BSEC2
@@ -15,41 +16,42 @@ bme68x_bsec2_i2c:
   address: ${bme_i2c_addr}
   operating_age: ${bme_operating_age}
   sample_rate: ${bme_sample_rate}
+  temperature_offset: ${bme_temp_offset}
 
 sensor:
   # BME68x sensors
   - platform: bme68x_bsec2
     bme68x_bsec2_id: ${bme_bsec2_id}
     temperature:
-      id: bme_temp
+      id: ${bme_bsec2_id}_temp
       name: "Temperature"
       icon: mdi:thermometer
       device_class: temperature
       state_class: measurement
       accuracy_decimals: ${bme_accuracy_decimals}
     pressure:
-      id: bme_pressure
+      id: ${bme_bsec2_id}_pressure
       name: "Pressure"
       icon: mdi:weather-windy
       device_class: atmospheric_pressure
       state_class: measurement
       accuracy_decimals: ${bme_accuracy_decimals}
     humidity:
-      id: bme_humidity
+      id: ${bme_bsec2_id}_humidity
       name: "Humidity"
       icon: mdi:water-percent
       device_class: humidity
       state_class: measurement
       accuracy_decimals: ${bme_accuracy_decimals}
     co2_equivalent:
-      id: co2_equiv
+      id: ${bme_bsec2_id}_co2_equiv
       name: "CO2 Equivalent"
       icon: mdi:molecule-co2
       device_class: carbon_dioxide
       state_class: measurement
       accuracy_decimals: ${bme_accuracy_decimals}
     breath_voc_equivalent:
-      id: breath_voc_equiv
+      id: ${bme_bsec2_id}_breath_voc_equiv
       name: "Breath VOC Equivalent"
       icon: mdi:scent
       device_class: volatile_organic_compounds
@@ -57,28 +59,28 @@ sensor:
       accuracy_decimals: ${bme_accuracy_decimals}
 
     iaq:
-      id: bme_iaq
+      id: ${bme_bsec2_id}_iaq
       name: "IAQ"
       icon: mdi:air-filter
       device_class: aqi
       state_class: measurement
       accuracy_decimals: 0
     iaq_static:
-      id: bme_iaq_static
+      id: ${bme_bsec2_id}_iaq_static
       name: "IAQ Static"
       icon: mdi:air-filter
       device_class: aqi
       state_class: measurement
       accuracy_decimals: 0
     iaq_accuracy:
-      id: bme_iaq_accuracy_int
+      id: ${bme_bsec2_id}_iaq_accuracy_int
       name: "IAQ Accuracy Value"
       icon: mdi:chemical-weapon
       entity_category: diagnostic
       accuracy_decimals: 0
 
     gas_resistance:
-      id: bme_gas_resistance
+      id: ${bme_bsec2_id}_gas_resistance
       name: "Gas Resistance"
       device_class: gas
       state_class: measurement
@@ -87,8 +89,9 @@ sensor:
 
 text_sensor:
   - platform: bme68x_bsec2
+    bme68x_bsec2_id: ${bme_bsec2_id}
     iaq_accuracy:
-      id: bme_iaq_accuracy_str
+      id: ${bme_bsec2_id}_iaq_accuracy_str
       name: "IAQ Accuracy"
       icon: "mdi:chemical-weapon"
 
@@ -96,7 +99,7 @@ text_sensor:
     name: "IAQ Classification"
     icon: "mdi:air-filter"
     lambda: |-
-      int iaq_val = int(id(bme_iaq).state);
+      int iaq_val = int(id(${bme_bsec2_id}_iaq).state);
       if ( iaq_val <= 50) {
         return {"Excellent"};
       } else if ( iaq_val <= 100) {
