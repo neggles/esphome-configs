@@ -82,7 +82,7 @@ sensor:
     gas_resistance:
       id: ${bme_bsec2_id}_gas_resistance
       name: "Gas Resistance"
-      device_class: gas
+      unit_of_measurement: "Ω"
       state_class: measurement
       entity_category: diagnostic
       accuracy_decimals: 1
@@ -112,7 +112,7 @@ sensor:
   - platform: template
     name: Absolute Humidity
     icon: mdi:water
-    device_class: humidity
+    device_class: absolute_humidity
     state_class: measurement
     unit_of_measurement: "g/m³"
     accuracy_decimals: ${bme_accuracy_decimals}
