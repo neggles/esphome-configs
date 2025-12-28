@@ -50,25 +50,6 @@ sensor:
     pm_10_0:
       name: "PM10 µG/m3"
 
-#  - platform: bme680_bsec
-#    temperature:
-#      name: "Temperature"
-#    pressure:
-#      name: "Pressure"
-#    humidity:
-#      name: "Humidity"
-#    iaq:
-#      name: "IAQ"
-#    co2_equivalent:
-#      name: "CO2 Equivalent"
-#    breath_voc_equivalent:
-#      name: "Breath VOC Equivalent"
-
-#text_sensor:
-#  - platform: bme680_bsec
-#    iaq_accuracy:
-#      name: "IAQ Accuracy"
-
 # PMSA003 sensor control GPIOs
 switch:
     # PMSX003 standby/sleep mode control

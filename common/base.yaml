@@ -13,8 +13,8 @@ ota:
 
 # enable API and home assistant time source
 packages:
-  - !include api.yaml
-  - !include hassio/time.yaml
+  esphome_api: !include api.yaml
+  hassio_time: !include hassio/time.yaml
 
 # Platform Status sensors
 sensor:
@@ -34,12 +34,11 @@ switch:
     id: restart_switch
     name: Restart Device
     entity_category: config
-    disabled_by_default: true
     restore_mode: ALWAYS_OFF
 
   - platform: factory_reset
     id: factory_reset_switch
     name: Factory Reset
     entity_category: config
-    disabled_by_default: true
     restore_mode: ALWAYS_OFF
+    disabled_by_default: true

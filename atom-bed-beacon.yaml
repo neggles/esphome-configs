@@ -27,7 +27,7 @@ packages:
   m5stack_status: !include
     file: common/rgb/status.yaml
     vars:
-      status_button_gpio: GPIO19
+      status_button_gpio: GPIO39
       status_rgb_gpio: GPIO27
       status_rgb_brt_max: 35%
 
