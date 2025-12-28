@@ -87,6 +87,88 @@ sensor:
       entity_category: diagnostic
       accuracy_decimals: 1
 
+  - platform: template
+    name: "VOC Index"
+    icon: mdi:scent
+    device_class: volatile_organic_compounds
+    state_class: measurement
+    unit_of_measurement: "index"
+    accuracy_decimals: 0
+    lambda: |-
+      float voc_eq = id(${bme_bsec2_id}_breath_voc_equiv).state;
+      // Simple VOC index calculation
+      if (voc_eq < 65) {
+        return 1.0;
+      } else if (voc_eq < 220) {
+        return 2.0;
+      } else if (voc_eq < 660) {
+        return 3.0;
+      } else if (voc_eq < 2200) {
+        return 4.0;
+      } else {
+        return 5.0;
+      }
+
+  - platform: template
+    name: Absolute Humidity
+    icon: mdi:water
+    device_class: humidity
+    state_class: measurement
+    unit_of_measurement: "g/m³"
+    accuracy_decimals: ${bme_accuracy_decimals}
+    lambda: |-
+      // Calculate absolute humidity in g/m³
+      float temp = id(${bme_bsec2_id}_temp).state;
+      float hum = id(${bme_bsec2_id}_humidity).state;
+      float abs_hum = (6.112 * exp((17.67 * temp) / (temp + 243.5)) * hum * 2.1674) / (273.15 + temp);
+      return abs_hum;
+
+  - platform: template
+    name: Dew Point
+    icon: mdi:oil-temperature
+    device_class: temperature
+    state_class: measurement
+    unit_of_measurement: "°C"
+    accuracy_decimals: ${bme_accuracy_decimals}
+    lambda: |-
+      float temp = id(${bme_bsec2_id}_temp).state;
+      float hum = id(${bme_bsec2_id}_humidity).state;
+      // Dew point formula
+      float a = 17.27;
+      float b = 237.7;
+      float alpha = ((a * temp) / (b + temp)) + log(hum / 100.0);
+      float dew_point = (b * alpha) / (a - alpha);
+      return dew_point;
+
+  - platform: template
+    name: Heat Index
+    icon: mdi:thermometer-lines
+    device_class: temperature
+    state_class: measurement
+    unit_of_measurement: "°C"
+    accuracy_decimals: ${bme_accuracy_decimals}
+    lambda: |-
+      float temp = id(${bme_bsec2_id}_temp).state;
+      float hum = id(${bme_bsec2_id}_humidity).state;
+      // Heat index formula
+      float hi = -8.784695 + 1.61139411 * temp + 2.338549 * hum - 0.14611605 * temp * hum
+                  - 0.012308094 * pow(temp, 2) - 0.016424828 * pow(hum, 2)
+                  + 0.002211732 * pow(temp, 2) * hum + 0.00072546 * temp * pow(hum, 2)
+                  - 0.000003582 * pow(temp, 2) * pow(hum, 2);
+      return hi;
+
+  # report the configured temperature offset as a separate sensor for diagnostics
+  - platform: template
+    name: "Temperature Offset"
+    icon: mdi:thermometer
+    entity_category: diagnostic
+    device_class: temperature
+    accuracy_decimals: 1
+    unit_of_measurement: "°C"
+    lambda: |-
+      return ${bme_temp_offset};
+
+
 text_sensor:
   - platform: bme68x_bsec2
     bme68x_bsec2_id: ${bme_bsec2_id}

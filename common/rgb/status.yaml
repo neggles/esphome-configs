@@ -17,8 +17,8 @@ external_components:
 light:
   - platform: esp32_rmt_led_strip
     id: status_rgb_led
-    name: None
-    icon: "mdi:led-outline"
+    name: Status Light
+    icon: mdi:led-outline
     entity_category: config
     disabled_by_default: true
     rgb_order: GRB
@@ -51,6 +51,7 @@ binary_sensor:
   - platform: gpio
     id: button
     name: Device Button
+    icon: mdi:gesture-tap-button
     pin:
       number: ${status_button_gpio}
       inverted: ${status_button_inverted}

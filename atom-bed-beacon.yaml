@@ -7,7 +7,7 @@ substitutions:
   reboot_timeout: 15min
   ap_timeout: 0s # disable automatic AP mode
 
-  log_level: INFO
+  log_level: DEBUG
 
 esphome:
   name: ${device}
@@ -57,3 +57,12 @@ binary_sensor:
     name: "Arcturus Proximity"
     irk: !secret ble_irk_arcturus
     timeout: 60s
+
+sensor:
+  # internal temperature sensor, cause why not
+  - platform: internal_temperature
+    id: cpu_temp
+    name: "CPU Temperature"
+    icon: mdi:thermometer-auto
+    device_class: temperature
+    entity_category: diagnostic

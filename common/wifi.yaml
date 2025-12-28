@@ -1,7 +1,7 @@
 ---
 defaults:
   reboot_timeout: 15min
-  ap_timeout: 1min
+  ap_timeout: 90s
   update_interval: 60s
   wifi_power_save_mode: LIGHT
 
@@ -20,15 +20,21 @@ wifi:
 
 sensor:
   - platform: wifi_signal
-    name: "WiFi Signal dB"
     id: wifi_signal_db
+    name: "WiFi Signal dB"
+    icon: mdi:wifi
     update_interval: ${update_interval}
+    device_class: signal_strength
+    unit_of_measurement: dBm
     entity_category: diagnostic
 
   - platform: wifi_signal
-    name: WiFi Signal (avg)
     id: wifi_signal_5min
+    name: WiFi Signal (avg)
+    icon: mdi:wifi
     update_interval: ${update_interval}
+    device_class: signal_strength
+    unit_of_measurement: dBm
     entity_category: diagnostic
     filters:
       - sliding_window_moving_average:
@@ -51,25 +57,43 @@ text_sensor:
   - platform: wifi_info
     ip_address:
       name: IP Address
+      icon: mdi:ip-network
+      entity_category: diagnostic
       address_0:
         name: IP Address 0
+        icon: mdi:ip-network
+        entity_category: diagnostic
         disabled_by_default: true
       address_1:
         name: IP Address 1
+        icon: mdi:ip-network
+        entity_category: diagnostic
         disabled_by_default: true
       address_2:
         name: IP Address 2
+        icon: mdi:ip-network
+        entity_category: diagnostic
         disabled_by_default: true
       address_3:
         name: IP Address 3
+        icon: mdi:ip-network
+        entity_category: diagnostic
         disabled_by_default: true
       address_4:
         name: IP Address 4
+        icon: mdi:ip-network
+        entity_category: diagnostic
         disabled_by_default: true
     ssid:
       name: Connected SSID
+      icon: mdi:access-point-network
+      entity_category: diagnostic
     bssid:
       name: Connected BSSID
+      icon: mdi:access-point
+      entity_category: diagnostic
       disabled_by_default: true
     mac_address:
       name: WiFi MAC
+      icon: mdi:chip
+      entity_category: diagnostic

@@ -38,7 +38,7 @@ packages:
     vars:
       bme_i2c_id: i2c0
       bme_i2c_addr: 0x77
-      bme_temp_offset: 7.5 # measures 33 but room is really 26
+      bme_temp_offset: 8 # measures 33 but room is really 25
       bme_sample_rate: LP
       bme_operating_age: 28d
       update_interval: ${update_interval}
@@ -76,5 +76,6 @@ sensor:
   - platform: internal_temperature
     id: cpu_temp
     name: "CPU Temperature"
+    icon: mdi:thermometer-auto
     device_class: temperature
     entity_category: diagnostic
