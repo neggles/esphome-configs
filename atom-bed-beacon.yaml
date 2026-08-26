@@ -46,6 +46,18 @@ esp32_ble_beacon:
 
 # BLE tracker to see other devices
 esp32_ble_tracker:
+  on_ble_advertise:
+    - mac_address:
+        - 44:B1:76:B0:61:11 # fridge display
+      then:
+        - homeassistant.event:
+            event: esphome.opendisplay_awake
+            data:
+              mac: !lambda |-
+                static char addr_buf[MAC_ADDRESS_PRETTY_BUFFER_SIZE];
+                return x.address_str_to(addr_buf);
+
+
 
 # BT proxy for home assistant
 bluetooth_proxy:

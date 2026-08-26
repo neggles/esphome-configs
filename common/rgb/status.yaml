@@ -11,7 +11,7 @@ defaults:
 external_components:
   - source: github://neggles/esphome@rgb-status-indicator
     components: [status_indicator]
-    refresh: "1h"
+    refresh: always
 
 # Status LED
 light:
@@ -21,7 +21,7 @@ light:
     icon: mdi:led-outline
     entity_category: config
     disabled_by_default: true
-    rgb_order: GRB
+    channel_colors: GRB
     pin: ${status_rgb_gpio}
     num_leds: ${status_rgb_count}
     chipset: SK6812
@@ -158,7 +158,7 @@ status_indicator:
   on_custom_status:
     - trigger_id: status_red
       then:
-        - light.turn_on: &status_red
+        - light.turn_on:
             id: status_rgb_led
             <<: !include colors/red.yaml
             brightness: ${status_rgb_brt_hi}
@@ -166,17 +166,21 @@ status_indicator:
     - trigger_id: status_red_pulse
       then:
         - light.turn_on:
-            <<: *status_red
+            id: status_rgb_led
+            <<: !include colors/red.yaml
+            brightness: ${status_rgb_brt_hi}
             effect: slow_pulse
     - trigger_id: status_red_flash
       then:
         - light.turn_on:
-            <<: *status_red
+            id: status_rgb_led
+            <<: !include colors/red.yaml
+            brightness: ${status_rgb_brt_hi}
             effect: fast_pulse
 
     - trigger_id: status_orange
       then:
-        - light.turn_on: &status_orange
+        - light.turn_on:
             id: status_rgb_led
             <<: !include colors/orange.yaml
             brightness: ${status_rgb_brt_hi}
@@ -185,13 +189,15 @@ status_indicator:
       then:
         - light.turn_on:
             id: status_rgb_led
-            <<: *status_orange
+            <<: !include colors/orange.yaml
+            brightness: ${status_rgb_brt_hi}
             effect: slow_pulse
     - trigger_id: status_orange_flash
       then:
         - light.turn_on:
             id: status_rgb_led
-            <<: *status_orange
+            <<: !include colors/orange.yaml
+            brightness: ${status_rgb_brt_hi}
             effect: fast_pulse
 
     - trigger_id: status_green
