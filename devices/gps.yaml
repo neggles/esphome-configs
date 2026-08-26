@@ -1,0 +1,38 @@
+---
+defaults:
+  timezone_string: Australia/Melbourne
+  gps_id: gps
+  gps_uart_id: uart0
+  gps_update_interval: 1s
+
+gps:
+  id: ${gps_id}
+  uart_id: ${gps_uart_id}
+  update_interval: ${gps_update_interval}
+  latitude:
+    id: ${gps_id}_latitude
+    name: "Latitude"
+  longitude:
+    id: ${gps_id}_longitude
+    name: "Longitude"
+  altitude:
+    id: ${gps_id}_altitude
+    name: "Altitude"
+  speed:
+    id: ${gps_id}_speed
+    name: "Speed"
+  satellites:
+    id: ${gps_id}_satellites
+    name: "Satellites"
+  hdop:
+    id: ${gps_id}_hdop
+    name: "HDOP"
+  course:
+    id: ${gps_id}_course
+    name: "Course"
+
+time:
+  - platform: gps
+    id: ${gps_id}_time
+    gps_id: ${gps_id}
+    timezone: ${timezone_string}

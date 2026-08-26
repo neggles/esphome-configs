@@ -1,0 +1,9 @@
+---
+defaults:
+  min_ipv6_addr_count: 0
+  ipv6_enable_high_performance: null
+
+network:
+  enable_ipv6: true
+  min_ipv6_addr_count: ${min_ipv6_addr_count}
+  enable_high_performance: ${ipv6_enable_high_performance}

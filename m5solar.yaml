@@ -20,8 +20,9 @@ esp32:
 
 packages:
   base: !include common/base.yaml
+  secrets: !include secrets/m5solar.yaml
   wifi: !include
-    file:  common/wifi.yaml
+    file:  common/network/wifi.yaml
     vars:
       wifi_power_save_mode: NONE # this prevents use of BLE
   web_server: !include common/web_server.yaml

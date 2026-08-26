@@ -1,0 +1,13 @@
+defaults:
+  timezone_string: Australia/Melbourne
+  ntp_time_id: network_time
+  ntp_servers:
+    - toc.ntp.telstra.net
+    - time.cloudflare.com
+    - home.neggl.es
+
+time:
+  - id: ${ntp_time_id}
+    platform: sntp
+    timezone: ${timezone_string}
+    servers: ${ntp_servers}
