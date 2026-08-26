@@ -30,6 +30,7 @@ packages:
       status_rgb_count: 25
       status_button_gpio: GPIO39
       status_rgb_gpio: GPIO27
+      status_rgb_rmt_symbols: 64 # required for vanilla esp32
       # turning this up too high is not only eye-searing but could damage the unit
       status_rgb_brt_max: 50%
   # mpu6886_accel: !include common/m5stack/mpu6886-accel.yaml

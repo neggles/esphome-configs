@@ -1,8 +1,13 @@
 defaults:
   status_button_gpio: ${status_button_gpio}
   status_button_inverted: true
+  status_button_pullup: false
+  status_button_debounce: 10ms
+  status_button_ignore_strap: false
   status_rgb_gpio: ${status_rgb_gpio}
   status_rgb_count: 1
+  status_rgb_rmt_symbols: 48 # or 64 for ESP32 and ESP32-S2
+  status_rgb_power_supply: !remove
   status_rgb_brt_max: 75%
   status_rgb_brt_hi: 100%
   status_rgb_brt_mid: 50%
@@ -29,6 +34,9 @@ light:
       - ${status_rgb_brt_max}
       - ${status_rgb_brt_max}
       - ${status_rgb_brt_max}
+    rmt_symbols: ${status_rgb_rmt_symbols}
+    default_transition_length: 150ms
+    power_supply: ${status_rgb_power_supply}
     effects:
       - pulse:
           name: slow_pulse
@@ -55,6 +63,12 @@ binary_sensor:
     pin:
       number: ${status_button_gpio}
       inverted: ${status_button_inverted}
+      ignore_strapping_warning: ${status_button_ignore_strap}
+      mode:
+        input: true
+        pullup: ${status_button_pullup}
+    filters:
+      - delayed_off: ${status_button_debounce}
     disabled_by_default: true
     on_press:
       - status.push:

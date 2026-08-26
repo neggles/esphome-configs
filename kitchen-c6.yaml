@@ -1,0 +1,78 @@
+substitutions:
+  device: kitchen-c6
+  name: "Kitchen C6"
+  area: Kitchen
+  update_interval: 60s
+
+  reboot_timeout: 15min
+  ap_timeout: 0s # disable automatic AP mode
+
+  log_level: INFO
+
+esphome:
+  name: ${device}
+  friendly_name: ${name}
+  area: ${area}
+
+esp32:
+  variant: esp32c6
+  flash_size: 4MB
+  framework:
+    type: esp-idf
+    version: recommended
+
+packages:
+  base: !include common/base.yaml
+  wifi: !include common/wifi.yaml
+  web_server: !include common/web_server.yaml
+  m5stack_status: !include
+    file: common/rgb/status.yaml
+    vars:
+      status_button_gpio: GPIO9
+      status_button_inverted: true
+      status_button_pullup: true
+      status_button_ignore_strap: true
+      status_rgb_gpio: GPIO20
+      status_rgb_brt_max: 75%
+      status_rgb_power_supply: status_rgb_power
+      status_rgb_rmt_symbols: 48
+
+# allow going offline w/o going unavailable
+deep_sleep:
+
+# BLE tracker to see other devices
+esp32_ble_tracker:
+
+# BT proxy for home assistant
+bluetooth_proxy:
+  active: true
+  connection_slots: 3
+
+power_supply:
+  - id: status_rgb_power
+    pin: GPIO19
+    enable_time: 5ms
+    keep_on_time: 10ms
+
+sensor:
+  # internal temperature sensor, cause why not
+  - platform: internal_temperature
+    id: cpu_temp
+    name: "CPU Temperature"
+    icon: mdi:thermometer-auto
+    device_class: temperature
+    entity_category: diagnostic
+
+remote_transmitter:
+  id: ir_tx
+  pin: GPIO3
+  carrier_duty_percent: 50%
+  non_blocking: true
+  rmt_symbols: 48 # C6 only has 96
+
+infrared:
+  # IR transmitter instance
+  - platform: ir_rf_proxy
+    name: IR Proxy Transmitter
+    id: ir_proxy_tx
+    remote_transmitter_id: ir_tx
